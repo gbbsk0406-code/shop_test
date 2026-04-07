@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Consultation | プレミアムオンライン相談</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+JP:wght@200;300;400&family=Noto+Sans+JP:wght@300;400&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--gold:#C9A84C;--gold-light:#E8C97A;--gold-dim:rgba(201,168,76,0.12);--black:#0A0A08;--black2:#0f0f0d;--dark:#1A1914;--text:#E8E4DC;--muted:rgba(232,228,220,0.5);--border:rgba(201,168,76,0.2)}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-weight:300;overflow-x:hidden;cursor:none}
+.cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(201,168,76,0.45);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width 0.25s,height 0.25s}
+.loader{position:fixed;inset:0;background:var(--black);z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem;transition:opacity 0.9s,visibility 0.9s}
+.loader.hide{opacity:0;visibility:hidden}
+.loader-logo{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;letter-spacing:0.5em;color:var(--gold);animation:pulse 1.6s ease infinite}
+.loader-bar-wrap{width:160px;height:1px;background:rgba(201,168,76,0.2)}
+.loader-bar{height:1px;background:var(--gold);width:0;animation:loadBar 1.4s ease forwards}
+@keyframes pulse{0%,100%{opacity:0.25}50%{opacity:1}}
+@keyframes loadBar{to{width:100%}}
+header{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.8rem 5%;display:flex;align-items:center;justify-content:space-between;transition:background 0.4s,padding 0.4s}
+header.scrolled{background:rgba(10,10,8,0.93);backdrop-filter:blur(14px);padding:1.2rem 5%;border-bottom:1px solid var(--border)}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:400;color:var(--gold);letter-spacing:0.3em;text-decoration:none}
+.header-cta{font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold);padding:0.5rem 1.4rem;text-decoration:none;transition:background 0.3s,color 0.3s}
+.header-cta:hover{background:var(--gold);color:var(--black)}
+.hero{height:100vh;min-height:680px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1800&q=85&auto=format');background-size:cover;background-position:center top;filter:brightness(0.28) contrast(1.1);transform:scale(1.06);transition:transform 7s ease}
+.hero-bg.loaded{transform:scale(1)}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,8,0.15) 0%,transparent 45%,rgba(10,10,8,0.75) 100%)}
+.hero-content{position:relative;z-index:1;text-align:center;padding:0 5%}
+.hero-eyebrow{font-size:0.65rem;letter-spacing:0.45em;color:var(--gold);text-transform:uppercase;display:block;margin-bottom:2rem;opacity:0;animation:fadeUp 1s 1s forwards}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,9vw,8rem);font-weight:300;line-height:1.05;letter-spacing:0.06em;color:var(--text);opacity:0;animation:fadeUp 1.2s 1.2s forwards}
+.hero-title em{display:block;font-style:italic;color:var(--gold);font-size:0.7em}
+.hero-price{font-family:'Noto Serif JP',serif;font-size:1rem;font-weight:200;letter-spacing:0.3em;color:rgba(232,228,220,0.6);margin-top:1.5rem;opacity:0;animation:fadeUp 1s 1.5s forwards}
+.hero-scroll{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0.6rem;opacity:0;animation:fadeUp 1s 2s forwards;cursor:pointer}
+.hero-scroll span{font-size:0.6rem;letter-spacing:0.35em;color:var(--muted);text-transform:uppercase}
+.scroll-line{width:1px;height:48px;background:linear-gradient(to bottom,var(--gold),transparent);animation:scrollAnim 1.6s ease infinite}
+@keyframes scrollAnim{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+.about{padding:9rem 5%;display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center;max-width:1100px;margin:0 auto}
+.about-img{position:relative;aspect-ratio:4/5;overflow:hidden}
+.about-img img{width:100%;height:100%;object-fit:cover;filter:brightness(0.75) contrast(1.1);transition:transform 0.9s ease}
+.about-img:hover img{transform:scale(1.04)}
+.about-img::before{content:'';position:absolute;inset:14px;border:1px solid var(--border);z-index:1;pointer-events:none}
+.label{font-size:0.62rem;letter-spacing:0.42em;color:var(--gold);text-transform:uppercase;display:block;margin-bottom:1.5rem}
+.about-text h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:300;line-height:1.35;color:var(--text);margin-bottom:1.8rem}
+.about-text h2 em{font-style:italic;color:var(--gold)}
+.gold-rule{width:36px;height:1px;background:var(--gold);margin-bottom:2rem}
+.about-text p{font-size:0.88rem;line-height:2.2;color:rgba(232,228,220,0.62);margin-bottom:1.2rem}
+.features{background:var(--black2);padding:8rem 5%}
+.features-header{text-align:center;margin-bottom:5rem}
+.features-header h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:300;color:var(--text)}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;max-width:980px;margin:0 auto;border:1px solid var(--border)}
+.feature-item{padding:3rem 2.2rem;border-right:1px solid var(--border);position:relative;overflow:hidden;transition:background 0.4s}
+.feature-item:last-child{border-right:none}
+.feature-item::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--gold-dim),transparent);opacity:0;transition:opacity 0.4s}
+.feature-item:hover{background:rgba(201,168,76,0.03)}
+.feature-item:hover::after{opacity:1}
+.feature-num{font-family:'EB Garamond',serif;font-size:3rem;color:rgba(201,168,76,0.18);line-height:1;margin-bottom:1.2rem}
+.feature-bar{width:20px;height:1px;background:var(--gold);margin-bottom:1.2rem;transform:scaleX(0);transform-origin:left;transition:transform 0.4s}
+.feature-item:hover .feature-bar{transform:scaleX(1)}
+.feature-item h3{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:400;color:var(--text);margin-bottom:0.8rem;letter-spacing:0.04em}
+.feature-item p{font-size:0.8rem;line-height:1.95;color:rgba(232,228,220,0.52)}
+.purchase{padding:9rem 5%;text-align:center;position:relative;overflow:hidden}
+.purchase::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;border-radius:50%;background:radial-gradient(ellipse,rgba(201,168,76,0.06) 0%,transparent 70%);pointer-events:none}
+.purchase h2{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:300;color:var(--text);margin-bottom:1rem}
+.purchase-sub{font-size:0.88rem;color:rgba(232,228,220,0.55);line-height:2;margin-bottom:3.5rem;max-width:520px;margin-left:auto;margin-right:auto}
+.price-card{display:inline-block;border:1px solid var(--border);padding:3rem 4rem;position:relative;margin-bottom:3rem}
+.price-card::before{content:'';position:absolute;inset:6px;border:1px solid rgba(201,168,76,0.08);pointer-events:none}
+.price-label{font-size:0.62rem;letter-spacing:0.4em;color:var(--gold);text-transform:uppercase;display:block;margin-bottom:1.2rem}
+.price-amount{font-family:'Cormorant Garamond',serif;font-size:4rem;font-weight:300;color:var(--text);line-height:1}
+.price-amount sup{font-size:1.5rem;vertical-align:super}
+.price-amount span{font-size:1rem;color:var(--muted);letter-spacing:0.1em;margin-left:0.3rem}
+.price-note{font-size:0.72rem;color:var(--muted);margin-top:0.8rem;letter-spacing:0.05em}
+.btn-purchase{display:inline-flex;align-items:center;gap:1rem;background:var(--gold);color:var(--black);font-size:0.75rem;letter-spacing:0.25em;text-transform:uppercase;font-weight:400;text-decoration:none;padding:1.1rem 3rem;font-family:'Noto Sans JP',sans-serif;transition:background 0.3s,transform 0.2s,box-shadow 0.3s;position:relative;overflow:hidden}
+.btn-purchase::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.15);transform:translateX(-100%);transition:transform 0.4s}
+.btn-purchase:hover{background:var(--gold-light);transform:translateY(-2px);box-shadow:0 12px 40px rgba(201,168,76,0.25)}
+.btn-purchase:hover::before{transform:translateX(0)}
+.btn-arrow{font-size:1rem;transition:transform 0.3s}
+.btn-purchase:hover .btn-arrow{transform:translateX(4px)}
+.purchase-note{margin-top:2rem;font-size:0.72rem;color:rgba(232,228,220,0.35);letter-spacing:0.08em;line-height:2}
+.testimonial{padding:7rem 5%;background:var(--dark);position:relative;overflow:hidden}
+.testimonial::before{content:'\201C';position:absolute;top:-2rem;left:4%;font-family:'Cormorant Garamond',serif;font-size:18rem;color:rgba(201,168,76,0.05);line-height:1;pointer-events:none}
+.testimonial-inner{max-width:700px;margin:0 auto;text-align:center;position:relative;z-index:1}
+.testimonial blockquote{font-family:'Cormorant Garamond',serif;font-size:clamp(1.2rem,2.5vw,1.8rem);font-weight:300;font-style:italic;line-height:1.7;color:var(--text)}
+.testimonial cite{display:block;margin-top:2rem;font-size:0.7rem;letter-spacing:0.3em;color:var(--gold);font-style:normal;text-transform:uppercase}
+.faq{padding:8rem 5%;max-width:800px;margin:0 auto}
+.faq h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,2.5rem);font-weight:300;color:var(--text);text-align:center;margin-bottom:4rem}
+.faq-item{border-bottom:1px solid rgba(201,168,76,0.12);padding:1.8rem 0;cursor:pointer}
+.faq-q{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.faq-q span{font-family:'Noto Serif JP',serif;font-size:0.92rem;color:var(--text);font-weight:300;line-height:1.7}
+.faq-icon{width:20px;height:20px;flex-shrink:0;position:relative}
+.faq-icon::before,.faq-icon::after{content:'';position:absolute;background:var(--gold);top:50%;left:50%;transform:translate(-50%,-50%);transition:transform 0.3s,opacity 0.3s}
+.faq-icon::before{width:10px;height:1px}
+.faq-icon::after{width:1px;height:10px}
+.faq-item.open .faq-icon::after{transform:translate(-50%,-50%) rotate(90deg);opacity:0}
+.faq-a{max-height:0;overflow:hidden;transition:max-height 0.4s ease}
+.faq-a p{font-size:0.84rem;line-height:2.1;color:rgba(232,228,220,0.58);padding-top:1rem}
+.faq-item.open .faq-a{max-height:200px}
+footer{background:var(--black);border-top:1px solid var(--border);padding:3.5rem 5% 2rem;text-align:center}
+.footer-logo{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--gold);letter-spacing:0.3em;display:block;margin-bottom:1rem}
+footer p{font-size:0.72rem;color:rgba(232,228,220,0.25);letter-spacing:0.1em}
+.demo-badge{position:fixed;bottom:1.5rem;right:1.5rem;background:rgba(201,168,76,0.1);border:1px solid var(--border);padding:0.5rem 1rem;font-size:0.62rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;z-index:200;pointer-events:none}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(36px);transition:opacity 0.9s ease,transform 0.9s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-d1{transition-delay:0.12s}.reveal-d2{transition-delay:0.24s}.reveal-d3{transition-delay:0.36s}
+@media(max-width:860px){.about{grid-template-columns:1fr;gap:3rem;padding:6rem 5%}.features-grid{grid-template-columns:1fr;border:none}.feature-item{border-right:none;border-bottom:1px solid var(--border)}.price-card{padding:2rem 1.5rem}}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="loader" id="loader">
+  <span class="loader-logo">CONSULTATION</span>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+</div>
+<div class="demo-badge">Demo Mode</div>
+<header id="header">
+  <a href="#" class="logo">PREMIUM SESSION</a>
+  <a href="#purchase" class="header-cta">予約する</a>
+</header>
+<section class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <span class="hero-eyebrow">Online Consultation — 60 min Session</span>
+    <h1 class="hero-title"><em>あなたの課題を、</em>解決へ。</h1>
+    <p class="hero-price">¥ 3,000（税込）/ 60分 単発セッション</p>
+  </div>
+  <div class="hero-scroll" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">
+    <span>Scroll</span><div class="scroll-line"></div>
+  </div>
+</section>
+<section id="about" style="background:var(--black)">
+  <div class="about">
+    <div class="about-img reveal">
+      <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=900&q=85&auto=format" alt="オンライン相談" loading="lazy">
+    </div>
+    <div class="about-text">
+      <span class="label reveal">— About This Session</span>
+      <h2 class="reveal reveal-d1">一人で抱えるより、<br><em>話してみませんか。</em></h2>
+      <div class="gold-rule reveal reveal-d2"></div>
+      <p class="reveal reveal-d2">ビジネスの方向性、SNS運用、副業の始め方、キャリアの悩み——どんなテーマでも60分、真剣にお付き合いします。</p>
+      <p class="reveal reveal-d3">初回の方も、何度もご利用いただいている方も。あなたのペースで、あなたの言葉で話してください。</p>
+    </div>
+  </div>
+</section>
+<section class="features" id="features">
+  <div class="features-header">
+    <span class="label reveal">— What You Get</span>
+    <h2 class="reveal reveal-d1">セッションに含まれるもの</h2>
+  </div>
+  <div class="features-grid reveal">
+    <div class="feature-item">
+      <div class="feature-num">01</div>
+      <div class="feature-bar"></div>
+      <h3>60分 1対1セッション</h3>
+      <p>ZoomまたはGoogle Meetで実施。録画データは後日お渡しします。</p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">02</div>
+      <div class="feature-bar"></div>
+      <h3>事前ヒアリングシート</h3>
+      <p>セッション前にお送りするシートで、当日の時間を最大限活用できます。</p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">03</div>
+      <div class="feature-bar"></div>
+      <h3>フォローアップメッセージ</h3>
+      <p>セッション後72時間以内に、まとめと次のアクションをお送りします。</p>
+    </div>
+  </div>
+</section>
+<section class="purchase" id="purchase">
+  <span class="label reveal">— Reserve Your Session</span>
+  <h2 class="reveal reveal-d1">今すぐ予約する</h2>
+  <p class="purchase-sub reveal reveal-d2">お支払い後、24時間以内に日程調整のご連絡をお送りします。<br>キャンセルは開催48時間前まで承ります。</p>
+  <div class="price-card reveal reveal-d2">
+    <span class="price-label">Single Session</span>
+    <div class="price-amount"><sup>¥</sup>3,000<span>税込</span></div>
+    <p class="price-note">60分 / オンライン / 録画データ付き</p>
+  </div>
+  <br><br>
+  <!-- ↓ hrefの「YOUR_PAYMENT_LINK」をStripeの決済リンクURLに差し替える -->
+  <a href="https://buy.stripe.com/YOUR_PAYMENT_LINK" class="btn-purchase reveal reveal-d3" target="_blank" rel="noopener">
+    今すぐ予約・お支払いへ <span class="btn-arrow">→</span>
+  </a>
+  <p class="purchase-note reveal">クレジットカード決済（Stripe）/ SSL暗号化通信で安全に処理されます<br>Visa · Mastercard · American Express · JCB 対応</p>
+</section>
+<section class="testimonial">
+  <div class="testimonial-inner reveal">
+    <blockquote>"話すだけで整理できた、という感覚が一番大きかったです。具体的なアドバイスももらえて、翌日からすぐ動けました。"</blockquote>
+    <cite>— 30代 フリーランス / ご利用者様の声</cite>
+  </div>
+</section>
+<section class="faq">
+  <h2 class="reveal">よくあるご質問</h2>
+  <div class="faq-item reveal"><div class="faq-q"><span>どんな相談内容でも大丈夫ですか？</span><div class="faq-icon"></div></div><div class="faq-a"><p>ビジネス・副業・キャリア・SNS運用・AI活用など幅広くお受けしています。迷っている段階でも歓迎です。</p></div></div>
+  <div class="faq-item reveal"><div class="faq-q"><span>支払い方法は何が使えますか？</span><div class="faq-icon"></div></div><div class="faq-a"><p>クレジットカード（Visa / Mastercard / American Express / JCB）がご利用いただけます。決済はStripeの安全な環境で処理されます。</p></div></div>
+  <div class="faq-item reveal"><div class="faq-q"><span>予約後の流れを教えてください。</span><div class="faq-icon"></div></div><div class="faq-a"><p>お支払い完了後、24時間以内に日程調整のご連絡をお送りします。ご希望の日時をお知らせいただき、確定次第Zoomリンクをお渡しします。</p></div></div>
+  <div class="faq-item reveal"><div class="faq-q"><span>キャンセルはできますか？</span><div class="faq-icon"></div></div><div class="faq-a"><p>開催の48時間前までにご連絡いただければ全額返金いたします。それ以降のキャンセルはご返金が難しい場合がございます。</p></div></div>
+</section>
+<footer>
+  <span class="footer-logo">PREMIUM SESSION</span>
+  <p>© 2024 Online Consultation. All Rights Reserved.</p>
+</footer>
+<script>
+window.addEventListener('load',()=>{setTimeout(()=>{document.getElementById('loader').classList.add('hide');document.getElementById('heroBg').classList.add('loaded')},1600)});
+const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px'});
+(function loop(){rx+=(mx-rx)*0.1;ry+=(my-ry)*0.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop)})();
+document.querySelectorAll('a,button,.faq-item').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ring.style.width='56px';ring.style.height='56px'});
+  el.addEventListener('mouseleave',()=>{ring.style.width='36px';ring.style.height='36px'});
+});
+const header=document.getElementById('header');
+window.addEventListener('scroll',()=>header.classList.toggle('scrolled',window.scrollY>60));
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+document.querySelectorAll('.faq-item').forEach(item=>{
+  item.addEventListener('click',()=>{const isOpen=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));if(!isOpen)item.classList.add('open')});
+});
+</script>
+</body>
+</html>
